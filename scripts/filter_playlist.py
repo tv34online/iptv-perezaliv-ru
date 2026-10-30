@@ -5,17 +5,17 @@ import sys
 from pathlib import Path
 
 EXCLUDED_CATEGORIES = (
-    "Lime",
-    "Большое ТВ",
-    "Turon Media",
-    "INFO",
-    "Цитадель-Крым",
-    "StarNet",
-    "Наш Нет",
-    "Itv.uz",
-    "CATCAST",
-    "TEST",
-    "Торрент ТВ",
+    "Lime (VPN🇷🇺)",
+    "Большое ТВ (VPN)",
+    "Turon Media (VPN)",
+    "info",
+    "Цитадель-Крым (VPN)",
+    "StarNet (VPN🇳🇱)",
+    "Наш Нет 🇺🇦",
+    "Itv.uz (🇺🇿)",
+    "Catcast 🐈 Not 24/7",
+    "TEST (VPN)",
+    "↕️ Торрент ТВ ↕️",
 )
 
 # Категории, которые не должны попасть в результат.
