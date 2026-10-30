@@ -5,17 +5,17 @@ import sys
 from pathlib import Path
 
 EXCLUDED_CATEGORIES = (
-    "lime",
-    "большое тв",
-    "большое телевидение",
-    "info",
-    "украина",
-    "україн",
-    "украин",
-    "украинские",
-    "українські",
-    "ukraine",
-    "ukrainian",
+    "Lime",
+    "Большое ТВ",
+    "Turon Media",
+    "INFO",
+    "Цитадель-Крым",
+    "StarNet",
+    "Наш Нет",
+    "Itv.uz",
+    "CATCAST",
+    "TEST",
+    "Торрент ТВ",
 )
 
 # Категории, которые не должны попасть в результат.
