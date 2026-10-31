@@ -24,7 +24,7 @@ if line.startswith("#EXTINF:"):
 match = re.search(
 r'group-title\s*=\s*"([^"]*)"',
 line,
-re.IGNORECASE
+re.IGNORECASE,
 )
 if match:
 return match.group(1).strip()
@@ -33,7 +33,10 @@ return None
 
 def main():
 if len(sys.argv) != 3:
-print("Usage: python3 filter_playlist.py input.m3u output.m3u")
+print(
+"Usage: python3 scripts/filter_playlist.py "
+"input.m3u output.m3u"
+)
 sys.exit(1)
 
 source = Path(sys.argv[1])
@@ -45,7 +48,6 @@ if not text.lstrip().startswith("#EXTM3U"):
     sys.exit("ERROR: Invalid M3U playlist")
 
 lines = text.splitlines()
-
 header = []
 entries = []
 current_entry = []
@@ -85,7 +87,7 @@ if not output.lstrip().startswith("#EXTM3U"):
 destination.write_text(output, encoding="utf-8")
 
 print(f"Всего каналов: {len(entries)}")
-print(f"Удалено каналов из запрещённых групп: {removed}")
+print(f"Удалено каналов: {removed}")
 print(f"Осталось каналов: {len(entries) - removed}")
 print(f"Плейлист сохранён: {destination}")
 
