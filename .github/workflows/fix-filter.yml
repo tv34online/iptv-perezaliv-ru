@@ -1,0 +1,117 @@
+name: Fix IPTV Filter
+
+on:
+workflow_dispatch:
+
+permissions:
+contents: write
+
+jobs:
+fix:
+runs-on: ubuntu-latest
+
+steps:
+  - name: Checkout repository
+    uses: actions/checkout@v4
+
+  - name: Rewrite filter script
+    shell: bash
+    run: |
+      mkdir -p scripts
+
+      cat > scripts/filter_playlist.py <<'PYTHON'
+      #!/usr/bin/env python3
+      import re
+      import sys
+      from pathlib import Path
+
+      EXCLUDED_CATEGORIES = {
+          "Lime (VPN🇷🇺)",
+          "Большое ТВ (VPN)",
+          "Turon Media (VPN)",
+          "info",
+          "Цитадель-Крым (VPN)",
+          "StarNet (VPN🇳🇱)",
+          "Наш Нет 🇺🇦",
+          "Itv.uz (🇺🇿)",
+          "Catcast 🐈 Not 24/7",
+          "TEST (VPN)",
+          "↕️ Торрент ТВ ↕️",
+      }
+
+      def get_group_title(entry):
+          for line in entry:
+              if line.startswith("#EXTINF:"):
+                  match = re.search(
+                      r'group-title\s*=\s*"([^"]*)"',
+                      line,
+                      re.IGNORECASE,
+                  )
+                  if match:
+                      return match.group(1).strip()
+          return None
+
+      def main():
+          if len(sys.argv) != 3:
+              sys.exit("Usage: filter_playlist.py input.m3u output.m3u")
+
+          source = Path(sys.argv[1])
+          destination = Path(sys.argv[2])
+          text = source.read_text(encoding="utf-8-sig")
+
+          if not text.lstrip().startswith("#EXTM3U"):
+              sys.exit("ERROR: Invalid M3U playlist")
+
+          header = []
+          entries = []
+          current_entry = []
+
+          for line in text.splitlines():
+              if line.startswith("#EXTINF:"):
+                  if current_entry:
+                      entries.append(current_entry)
+                  current_entry = [line]
+              elif current_entry:
+                  current_entry.append(line)
+              else:
+                  header.append(line)
+
+          if current_entry:
+              entries.append(current_entry)
+
+          kept = []
+          removed = 0
+
+          for entry in entries:
+              if get_group_title(entry) in EXCLUDED_CATEGORIES:
+                  removed += 1
+              else:
+                  kept.extend(entry)
+
+          output = "\n".join(header + kept).rstrip() + "\n"
+
+          if not output.lstrip().startswith("#EXTM3U"):
+              sys.exit("ERROR: Output playlist is invalid")
+
+          destination.write_text(output, encoding="utf-8")
+          print(f"Всего каналов: {len(entries)}")
+          print(f"Удалено каналов: {removed}")
+          print(f"Осталось каналов: {len(entries) - removed}")
+
+      if __name__ == "__main__":
+          main()
+      PYTHON
+
+      python3 -m py_compile scripts/filter_playlist.py
+
+      git config user.name "github-actions[bot]"
+      git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      git add scripts/filter_playlist.py
+
+      if ! git diff --cached --quiet; then
+        git commit -m "Fix IPTV playlist filter indentation"
+        git push
+      else
+        echo "Filter script is already correct"
+      fi
